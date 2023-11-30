@@ -73,7 +73,7 @@ class PowerCursorAddCommand(sublime_plugin.TextCommand):
 class PowerCursorRemoveCommand(sublime_plugin.TextCommand):
     """Remove the current transition cursor and switch back to the previous one.
     """
-    def run(self, edit):
+    def run(self, edit) -> None:
         view = self.view
 
         # Retrieve the transition selections
@@ -81,24 +81,34 @@ class PowerCursorRemoveCommand(sublime_plugin.TextCommand):
         if len(trans_sels) == 0:
             return
 
+        def row_of(x) -> int:
+            return view.rowcol(x)[0]
+
         # Activate the selection that is closest to the current selection(s)
         # in terms of lines
-        last_index, last_sel = find_prev_sel(trans_sels, view.sel()[0])
-        next_index, next_sel = find_next_sel(trans_sels, view.sel()[-1])
-
-        last_row, last_col = view.rowcol(last_sel.end())
-        next_row, next_col = view.rowcol(next_sel.begin())
-        start_row, start_col = view.rowcol(view.sel()[0].begin())
-        end_row, end_col = view.rowcol(view.sel()[-1].end())
-        if abs(start_row - last_row) < abs(next_row - end_row):
-            index, new_sel = last_index, last_sel
-        else:
-            index, new_sel = next_index, next_sel
+        cursor = view.sel()[-1].b
+        row_of_cursor = row_of(cursor)
+        _, _, new_sel, index = min(
+            (
+                min(
+                    abs(row_of(sel.b) - row_of_cursor),
+                    abs(row_of(sel.a) - row_of_cursor)
+                ),
+                min(
+                    abs(sel.b - cursor),
+                    abs(sel.a - cursor)
+                ),
+                sel,
+                i
+            )
+            for i, sel in enumerate(trans_sels)
+        )
 
         view.sel().clear()
         view.sel().add(new_sel)
         view.show(new_sel)
         if new_sel.a != new_sel.b:
+            last_index, last_sel = find_prev_sel(trans_sels, view.sel()[0])
             view.add_regions("mark", [sublime.Region(last_sel.a, last_sel.a)],
                              "mark", "", sublime.HIDDEN | sublime.PERSISTENT)
         else:
