@@ -128,15 +128,18 @@ class PowerCursorSelectCommand(sublime_plugin.TextCommand):
     def run(self, edit, forward = False):
         view = self.view
 
-        # Add the current selections into the transition lists
         current_sels = [s for s in view.sel()]
         trans_sels = view.get_regions("transition_sels")
-        trans_sels.extend(current_sels)
-
-        # Lazy step: Store the disorganized region and retrieve a sorted and
-        # merged region list
-        view.add_regions("transition_sels", trans_sels)
-        trans_sels = view.get_regions("transition_sels")
+        # Add the current selections into the transition lists but not if you
+        # have a single cursor right now *and* only selections in the list.
+        if all(not s.empty() for s in trans_sels) and len(current_sels) == 1 and current_sels[0].empty():
+            ...
+        else:
+            trans_sels.extend(current_sels)
+            # Lazy step: Store the disorganized region and retrieve a sorted and
+            # merged region list
+            view.add_regions("transition_sels", trans_sels)
+            trans_sels = view.get_regions("transition_sels")
 
         # Get the previous or next selection and mark
         if forward:
@@ -161,8 +164,13 @@ class PowerCursorActivateCommand(sublime_plugin.TextCommand):
     """
     def run(self, edit):
         view = self.view
-        sels = view.get_regions("transition_sels")
-        view.sel().add_all(sels)
+        trans_sels = view.get_regions("transition_sels")
+        current_sels = [s for s in view.sel()]
+        # Add the current selections into the transition lists but not if you
+        # have a single cursor right now *and* only selections in the list.
+        if all(not s.empty() for s in trans_sels) and len(current_sels) == 1 and current_sels[0].empty():
+            view.sel().clear()
+        view.sel().add_all(trans_sels)
         set_transition_sels(view, [])
         view.erase_regions("mark")
 
