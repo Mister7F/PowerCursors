@@ -113,8 +113,7 @@ class PowerCursorRemoveCommand(sublime_plugin.TextCommand):
         view.sel().add(new_sel)
         view.show(new_sel)
         if new_sel.a != new_sel.b:
-            last_index, last_sel = find_prev_sel(trans_sels, view.sel()[0])
-            view.add_regions("mark", [sublime.Region(last_sel.a, last_sel.a)],
+            view.add_regions("mark", [sublime.Region(new_sel.a, new_sel.a)],
                              "mark", "", sublime.HIDDEN | sublime.PERSISTENT)
         else:
             view.erase_regions("mark")
