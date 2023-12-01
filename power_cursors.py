@@ -10,10 +10,15 @@ _TRANSITION_CURSOR_FLAGS      = sublime.DRAW_EMPTY | sublime.DRAW_NO_FILL | subl
 def set_transition_sels(view, sels):
     """Set the updated transition selections and marks.
     """
-    view.add_regions("transition_sels", sels,
-                     scope = _TRANSITION_CURSOR_SCOPE_TYPE,
-                     icon  = _TRANSITION_CURSOR_ICON,
-                     flags = _TRANSITION_CURSOR_FLAGS)
+    if sels:
+        view.add_regions("transition_sels", sels,
+                         scope = _TRANSITION_CURSOR_SCOPE_TYPE,
+                         icon  = _TRANSITION_CURSOR_ICON,
+                         flags = _TRANSITION_CURSOR_FLAGS)
+        view.set_status("x_power_cursors", "{} saved selections".format(len(sels)))
+    else:
+        view.erase_regions("transition_sels")
+        view.erase_status("x_power_cursors")
 
 def find_prev_sel(trans_sels, current_sel):
     """Find the region in `trans_sels` that is right before `current_sel`.
@@ -158,14 +163,14 @@ class PowerCursorActivateCommand(sublime_plugin.TextCommand):
         view = self.view
         sels = view.get_regions("transition_sels")
         view.sel().add_all(sels)
-        view.erase_regions("transition_sels")
+        set_transition_sels(view, [])
         view.erase_regions("mark")
 
 class PowerCursorExitCommand(sublime_plugin.TextCommand):
     """Clear all transition cursors and exit the transition state.
     """
     def run(self, edit):
-        self.view.erase_regions("transition_sels")
+        set_transition_sels(self.view, [])
 
 
 class CursorTransitionListener(sublime_plugin.EventListener):
