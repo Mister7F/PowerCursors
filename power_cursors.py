@@ -1,4 +1,6 @@
-import sublime, sublime_plugin
+import sublime
+import sublime_plugin
+
 
 _TRANSITION_CURSOR_SCOPE_TYPE = "transition_cursor"
 _TRANSITION_CURSOR_ICON = "dot"
