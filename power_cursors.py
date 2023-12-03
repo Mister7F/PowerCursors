@@ -1,24 +1,30 @@
 import sublime, sublime_plugin
 
-_TRANSITION_CURSOR_SCOPE_TYPE = 'transition_cursor'
-_TRANSITION_CURSOR_ICON       = 'dot'
-_TRANSITION_CURSOR_FLAGS      = sublime.DRAW_EMPTY | sublime.DRAW_NO_FILL | sublime.PERSISTENT
+_TRANSITION_CURSOR_SCOPE_TYPE = "transition_cursor"
+_TRANSITION_CURSOR_ICON = "dot"
+_TRANSITION_CURSOR_FLAGS = (
+    sublime.DRAW_EMPTY | sublime.DRAW_NO_FILL | sublime.PERSISTENT
+)
 
 
 #### Helper functions for adding and restoring selections ####
 
+
 def set_transition_sels(view, sels):
-    """Set the updated transition selections and marks.
-    """
+    """Set the updated transition selections and marks."""
     if sels:
-        view.add_regions("transition_sels", sels,
-                         scope = _TRANSITION_CURSOR_SCOPE_TYPE,
-                         icon  = _TRANSITION_CURSOR_ICON,
-                         flags = _TRANSITION_CURSOR_FLAGS)
+        view.add_regions(
+            "transition_sels",
+            sels,
+            scope=_TRANSITION_CURSOR_SCOPE_TYPE,
+            icon=_TRANSITION_CURSOR_ICON,
+            flags=_TRANSITION_CURSOR_FLAGS,
+        )
         view.set_status("x_power_cursors", "{} saved selections".format(len(sels)))
     else:
         view.erase_regions("transition_sels")
         view.erase_status("x_power_cursors")
+
 
 def find_prev_sel(trans_sels, current_sel):
     """Find the region in `trans_sels` that is right before `current_sel`.
@@ -30,6 +36,7 @@ def find_prev_sel(trans_sels, current_sel):
 
     # Rotate to the last if `current_sel` is before all other selections
     return -1, trans_sels[-1]
+
 
 def find_next_sel(trans_sels, current_sel):
     """Find the region in `trans_sels` that is right after `current_sel`.
@@ -45,10 +52,11 @@ def find_next_sel(trans_sels, current_sel):
 
 #### Commands ####
 
+
 class power_cursor_add(sublime_plugin.TextCommand):
-    """Add a new transition cursor in the view.
-    """
-    def run(self, edit, keep_alive_cursor_index = -1, keep_alive_cursor_position = "b"):
+    """Add a new transition cursor in the view."""
+
+    def run(self, edit, keep_alive_cursor_index=-1, keep_alive_cursor_position="b"):
         view = self.view
 
         # Store the current selection
@@ -75,9 +83,10 @@ class power_cursor_add(sublime_plugin.TextCommand):
 
         view.sel().add(sublime.Region(alive_pos, alive_pos))
 
+
 class power_cursor_remove(sublime_plugin.TextCommand):
-    """Remove the current transition cursor and switch back to the previous one.
-    """
+    """Remove the current transition cursor and switch back to the previous one."""
+
     def run(self, edit) -> None:
         view = self.view
 
@@ -97,14 +106,11 @@ class power_cursor_remove(sublime_plugin.TextCommand):
             (
                 min(
                     abs(row_of(sel.b) - row_of_cursor),
-                    abs(row_of(sel.a) - row_of_cursor)
+                    abs(row_of(sel.a) - row_of_cursor),
                 ),
-                min(
-                    abs(sel.b - cursor),
-                    abs(sel.a - cursor)
-                ),
+                min(abs(sel.b - cursor), abs(sel.a - cursor)),
                 sel,
-                i
+                i,
             )
             for i, sel in enumerate(trans_sels)
         )
@@ -113,26 +119,35 @@ class power_cursor_remove(sublime_plugin.TextCommand):
         view.sel().add(new_sel)
         view.show(new_sel)
         if new_sel.a != new_sel.b:
-            view.add_regions("mark", [sublime.Region(new_sel.a, new_sel.a)],
-                             "mark", "", sublime.HIDDEN | sublime.PERSISTENT)
+            view.add_regions(
+                "mark",
+                [sublime.Region(new_sel.a, new_sel.a)],
+                "mark",
+                "",
+                sublime.HIDDEN | sublime.PERSISTENT,
+            )
         else:
             view.erase_regions("mark")
 
-        del(trans_sels[index])
+        del trans_sels[index]
         set_transition_sels(view, trans_sels)
 
+
 class power_cursor_select(sublime_plugin.TextCommand):
-    """Switch back and forth between transition cursors.
-    """
-    def run(self, edit, forward = False):
+    """Switch back and forth between transition cursors."""
+
+    def run(self, edit, forward=False):
         view = self.view
 
         current_sels = [s for s in view.sel()]
         trans_sels = view.get_regions("transition_sels")
         # Add the current selections into the transition lists but not if you
         # have a single cursor right now *and* only selections in the list.
-        if all(not s.empty() for s in trans_sels) and len(current_sels) == 1 and current_sels[0].empty():
-            ...
+        if (
+            all(not s.empty() for s in trans_sels)
+            and len(current_sels) == 1
+            and current_sels[0].empty()
+        ): ...
         else:
             trans_sels.extend(current_sels)
             # Lazy step: Store the disorganized region and retrieve a sorted and
@@ -151,39 +166,54 @@ class power_cursor_select(sublime_plugin.TextCommand):
         view.sel().add(sel)
         view.show(sel)
         if sel.a != sel.b:
-            view.add_regions("mark", [sublime.Region(sel.a, sel.a)],
-                             "mark", "", sublime.HIDDEN | sublime.PERSISTENT)
+            view.add_regions(
+                "mark",
+                [sublime.Region(sel.a, sel.a)],
+                "mark",
+                "",
+                sublime.HIDDEN | sublime.PERSISTENT,
+            )
 
         # Remove it from transition list
-        del(trans_sels[index])
+        del trans_sels[index]
         set_transition_sels(view, trans_sels)
 
+
 class power_cursor_activate(sublime_plugin.TextCommand):
-    """Activate all cursors (including the one that's currently alive).
-    """
+    """Activate all cursors (including the one that's currently alive)."""
+
     def run(self, edit):
         view = self.view
         trans_sels = view.get_regions("transition_sels")
         current_sels = [s for s in view.sel()]
         # Add the current selections into the transition lists but not if you
         # have a single cursor right now *and* only selections in the list.
-        if all(not s.empty() for s in trans_sels) and len(current_sels) == 1 and current_sels[0].empty():
+        if (
+            all(not s.empty() for s in trans_sels)
+            and len(current_sels) == 1
+            and current_sels[0].empty()
+        ):
             view.sel().clear()
         view.sel().add_all(trans_sels)
         set_transition_sels(view, [])
         view.erase_regions("mark")
 
+
 class power_cursor_exit(sublime_plugin.TextCommand):
-    """Clear all transition cursors and exit the transition state.
-    """
+    """Clear all transition cursors and exit the transition state."""
+
     def run(self, edit):
         set_transition_sels(self.view, [])
 
 
 class CursorTransitionListener(sublime_plugin.EventListener):
-    """Provide the transition status for context queries.
-    """
+    """Provide the transition status for context queries."""
+
     def on_query_context(self, view, key, operator, operand, match_all):
-        if key == 'in_cursor_transition':
+        if key == "in_cursor_transition":
             in_transition = len(view.get_regions("transition_sels")) > 0
-            return in_transition == operand if operator == sublime.OP_EQUAL else in_transition
+            return (
+                in_transition == operand
+                if operator == sublime.OP_EQUAL
+                else in_transition
+            )
