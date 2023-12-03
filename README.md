@@ -35,11 +35,14 @@ Clone repository into Packages directory (can be found using `Preferences: Brows
 
 How to use
 -------------------
+
+**No key-bindings are installed.  You have to define your own!**
+
+For that open `Preferences: Key Bindings`.  Look at and maybe copy-paste the bindings for [Windows/Linux](https://github.com/kaste/PowerCursors/blob/master/Default%20(Windows).sublime-keymap) or [Mac](https://github.com/kaste/PowerCursors/blob/master/Default%20(OSX).sublime-keymap).
+
 There are 6 commands in **PowerCursors**:
 
 * ### Add cursor
-
-    `ctrl+=` in OSX, `alt+=` in Linux and Windows.
 
     It adds a cursor and enters a transition mode where you can move the active cursor around without affecting the position of the cursor you just added.
 
@@ -47,15 +50,11 @@ There are 6 commands in **PowerCursors**:
 
 * ### Remove current cursor
 
-    `ctrl+-` in OSX, `alt+-` in Linux and Windows.
-
     It removes the currently active cursor and activates the cursor right before the current cursor (position-wise).
 
     The command is `power_cursor_remove`.
 
 * ### Select previous/next cursor
-
-    `ctrl+[`/`ctrl+]` in OSX, `alt+[`/`alt+]` in Linux and Windows.
 
     It makes the currently active cursor static and activates the cursor right before/after the current cursor (position-wise).
 
@@ -65,15 +64,11 @@ There are 6 commands in **PowerCursors**:
 
 * ### Activate all cursors
 
-    `ctrl+a` in OSX, `alt+a` in Linux and Windows.
-
     It activates all cursors. Now when you move or edit, all cursors will respond, just like how the native multiple-cursor works in Sublime Text.
 
     The command is `power_cursor_activate`.
 
 * ### Exit
-
-    `ESC` in OSX, Linux and Windows.
 
     It exits the cursor transition status. All cursors you added will be removed and the normal cursor mode is resumed.
 
