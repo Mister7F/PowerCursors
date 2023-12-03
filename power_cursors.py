@@ -144,7 +144,7 @@ class PowerCursorSelectCommand(sublime_plugin.TextCommand):
         if forward:
             index, sel = find_next_sel(trans_sels, current_sels[-1])
         else:
-            index, sel = find_prev_sel(trans_sels, current_sels[0])
+            index, sel = find_prev_sel(trans_sels, current_sels[-1])
 
         # Activate the selection
         view.sel().clear()
