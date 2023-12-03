@@ -25,7 +25,7 @@ def find_prev_sel(trans_sels, current_sel):
     Assume `trans_sels` is sorted.
     """
     for i in range(len(trans_sels) - 1, -1, -1):
-        if trans_sels[i].begin() < current_sel.begin():
+        if trans_sels[i].end() < current_sel.end():
             return i, trans_sels[i]
 
     # Rotate to the last if `current_sel` is before all other selections
@@ -36,7 +36,7 @@ def find_next_sel(trans_sels, current_sel):
     Assume `trans_sels` is sorted.
     """
     for i, sel in enumerate(trans_sels):
-        if sel.end() > current_sel.end():
+        if sel.begin() > current_sel.begin():
             return i, trans_sels[i]
 
     # Rotate to the beginning if `current_sel` is after all other selections
