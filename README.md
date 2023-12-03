@@ -1,7 +1,7 @@
 PowerCursors
 ==================
 
-PowerCursors is a Sublime Text 3 package that makes the add/remove/select of multiple cursors more convenient with keyboard.
+PowerCursors is a Sublime Text package that makes the add/remove/select of multiple cursors more convenient with keyboard.
 
 You can easily add a cursor and move it around while keeping all other cursors static. You can also choose between these cursors and remove them. When you are done putting cursors in positions, you can activate them and start moving and editing with all of them.
 
