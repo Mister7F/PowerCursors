@@ -45,7 +45,7 @@ def find_next_sel(trans_sels, current_sel):
 
 #### Commands ####
 
-class PowerCursorAddCommand(sublime_plugin.TextCommand):
+class power_cursor_add(sublime_plugin.TextCommand):
     """Add a new transition cursor in the view.
     """
     def run(self, edit, keep_alive_cursor_index = -1, keep_alive_cursor_position = "b"):
@@ -75,7 +75,7 @@ class PowerCursorAddCommand(sublime_plugin.TextCommand):
 
         view.sel().add(sublime.Region(alive_pos, alive_pos))
 
-class PowerCursorRemoveCommand(sublime_plugin.TextCommand):
+class power_cursor_remove(sublime_plugin.TextCommand):
     """Remove the current transition cursor and switch back to the previous one.
     """
     def run(self, edit) -> None:
@@ -121,7 +121,7 @@ class PowerCursorRemoveCommand(sublime_plugin.TextCommand):
         del(trans_sels[index])
         set_transition_sels(view, trans_sels)
 
-class PowerCursorSelectCommand(sublime_plugin.TextCommand):
+class power_cursor_select(sublime_plugin.TextCommand):
     """Switch back and forth between transition cursors.
     """
     def run(self, edit, forward = False):
@@ -158,7 +158,7 @@ class PowerCursorSelectCommand(sublime_plugin.TextCommand):
         del(trans_sels[index])
         set_transition_sels(view, trans_sels)
 
-class PowerCursorActivateCommand(sublime_plugin.TextCommand):
+class power_cursor_activate(sublime_plugin.TextCommand):
     """Activate all cursors (including the one that's currently alive).
     """
     def run(self, edit):
@@ -173,7 +173,7 @@ class PowerCursorActivateCommand(sublime_plugin.TextCommand):
         set_transition_sels(view, [])
         view.erase_regions("mark")
 
-class PowerCursorExitCommand(sublime_plugin.TextCommand):
+class power_cursor_exit(sublime_plugin.TextCommand):
     """Clear all transition cursors and exit the transition state.
     """
     def run(self, edit):
