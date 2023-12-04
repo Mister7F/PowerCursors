@@ -1,12 +1,17 @@
+from collections import ChainMap
 import sublime
 import sublime_plugin
 
 
-_TRANSITION_CURSOR_SCOPE_TYPE = "transition_cursor"
-_TRANSITION_CURSOR_ICON = "dot"
-_TRANSITION_CURSOR_FLAGS = (
-    sublime.DRAW_EMPTY | sublime.DRAW_NO_FILL | sublime.PERSISTENT
-)
+PREFERENCE_KEY = "power_cursors_style"
+# DEFAULT_STYLE = {"scope": "region.redish", "icon": "dot", "flags": "outline"}
+DEFAULT_STYLE = {"scope": "transition_cursor", "icon": "dot", "flags": "fill"}
+STYLES = {
+    "fill": sublime.DRAW_EMPTY | sublime.PERSISTENT,
+    "outline": sublime.DRAW_EMPTY | sublime.DRAW_NO_FILL | sublime.PERSISTENT,
+    "hidden": sublime.HIDDEN | sublime.PERSISTENT,
+}
+REGION_KEY = "transition_sels"
 
 
 #### Helper functions for adding and restoring selections ####
@@ -15,16 +20,19 @@ _TRANSITION_CURSOR_FLAGS = (
 def set_transition_sels(view, sels):
     """Set the updated transition selections and marks."""
     if sels:
-        view.add_regions(
-            "transition_sels",
-            sels,
-            scope=_TRANSITION_CURSOR_SCOPE_TYPE,
-            icon=_TRANSITION_CURSOR_ICON,
-            flags=_TRANSITION_CURSOR_FLAGS,
+        styles = ChainMap(
+            view.settings().get(PREFERENCE_KEY) or {},
+            DEFAULT_STYLE,
         )
+        if isinstance(styles["flags"], str):
+            try:
+                styles["flags"] = STYLES[styles["flags"]]
+            except LookupError:
+                styles["flags"] = STYLES["hidden"]
+        view.add_regions(REGION_KEY, sels, **styles)
         view.set_status("x_power_cursors", "{} saved selections".format(len(sels)))
     else:
-        view.erase_regions("transition_sels")
+        view.erase_regions(REGION_KEY)
         view.erase_status("x_power_cursors")
 
 
@@ -42,8 +50,9 @@ def find_prev_sel(trans_sels, current_sel):
 
 def find_next_sel(trans_sels, current_sel):
     """Find the region in `trans_sels` that is right after `current_sel`.
-    Assume `trans_sels` is sorted.
+    Assume  `trans_sels` is sorted.
     """
+    # for i, sel in enumerate(trans_sels):
     for i, sel in enumerate(trans_sels):
         if sel.begin() > current_sel.begin():
             return i, trans_sels[i]
@@ -63,7 +72,7 @@ class power_cursor_add(sublime_plugin.TextCommand):
 
         # Store the current selection
         current_sels = [s for s in view.sel()]
-        trans_sels = view.get_regions("transition_sels")
+        trans_sels = view.get_regions(REGION_KEY)
         trans_sels.extend(current_sels)
         set_transition_sels(view, trans_sels)
 
@@ -93,7 +102,7 @@ class power_cursor_remove(sublime_plugin.TextCommand):
         view = self.view
 
         # Retrieve the transition selections
-        trans_sels = view.get_regions("transition_sels")
+        trans_sels = view.get_regions(REGION_KEY)
         if len(trans_sels) == 0:
             return
 
@@ -125,7 +134,7 @@ class power_cursor_remove(sublime_plugin.TextCommand):
                 "mark",
                 [sublime.Region(new_sel.a, new_sel.a)],
                 "mark",
-                "",
+                "dot",
                 sublime.HIDDEN | sublime.PERSISTENT,
             )
         else:
@@ -142,7 +151,7 @@ class power_cursor_select(sublime_plugin.TextCommand):
         view = self.view
 
         current_sels = [s for s in view.sel()]
-        trans_sels = view.get_regions("transition_sels")
+        trans_sels = view.get_regions(REGION_KEY)
         # Add the current selections into the transition lists but not if you
         # have a single cursor right now *and* only selections in the list.
         if (
@@ -154,8 +163,8 @@ class power_cursor_select(sublime_plugin.TextCommand):
             trans_sels.extend(current_sels)
             # Lazy step: Store the disorganized region and retrieve a sorted and
             # merged region list
-            view.add_regions("transition_sels", trans_sels)
-            trans_sels = view.get_regions("transition_sels")
+            view.add_regions(REGION_KEY, trans_sels)
+            trans_sels = view.get_regions(REGION_KEY)
 
         # Get the previous or next selection and mark
         if forward:
@@ -172,7 +181,7 @@ class power_cursor_select(sublime_plugin.TextCommand):
                 "mark",
                 [sublime.Region(sel.a, sel.a)],
                 "mark",
-                "",
+                "dot",
                 sublime.HIDDEN | sublime.PERSISTENT,
             )
 
@@ -186,7 +195,7 @@ class power_cursor_activate(sublime_plugin.TextCommand):
 
     def run(self, edit):
         view = self.view
-        trans_sels = view.get_regions("transition_sels")
+        trans_sels = view.get_regions(REGION_KEY)
         current_sels = [s for s in view.sel()]
         # Add the current selections into the transition lists but not if you
         # have a single cursor right now *and* only selections in the list.
@@ -213,7 +222,7 @@ class CursorTransitionListener(sublime_plugin.EventListener):
 
     def on_query_context(self, view, key, operator, operand, match_all):
         if key == "in_cursor_transition":
-            in_transition = len(view.get_regions("transition_sels")) > 0
+            in_transition = len(view.get_regions(REGION_KEY)) > 0
             return (
                 in_transition == operand
                 if operator == sublime.OP_EQUAL
