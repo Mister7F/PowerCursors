@@ -5,7 +5,28 @@ PowerCursors is a Sublime Text package that makes the add/remove/select of multi
 
 You can easily add a cursor and move it around while keeping all other cursors static. You can also choose between these cursors and remove them. When you are done putting cursors in positions, you can activate them and start moving and editing with all of them.
 
-This is a fork of https://github.com/MaokaiLin/PowerCursors
+This is a fork of https://github.com/MaokaiLin/PowerCursors with the following
+changes:
+
+- The region/selection style is configurable as view setting.  E.g. in the standard
+  `Preferences.sublime-settings` file:
+
+```
+    "power_cursors_style": {
+        "flags": "outline",
+        "scope": "region.redish",
+        "icon": "dot",
+    }
+```
+
+- The number of selections/virtual cursors is shown in the status bar
+
+- The plugin runs on python3.8 and doesn't ship with any default key-bindings
+  anymore.  See below for what you should do.
+
+  Some bug-fixes of course.
+
+
 
 Demos:
 ------------------
