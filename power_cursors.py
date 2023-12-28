@@ -168,7 +168,7 @@ class power_cursor_select(sublime_plugin.TextCommand):
 
         # Get the previous or next selection and mark
         if forward:
-            index, sel = find_next_sel(trans_sels, current_sels[-1])
+            index, sel = find_next_sel(trans_sels, current_sels[0])
         else:
             index, sel = find_prev_sel(trans_sels, current_sels[-1])
 
