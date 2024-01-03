@@ -165,6 +165,10 @@ class power_cursor_select(sublime_plugin.TextCommand):
             view.add_regions(REGION_KEY, trans_sels)
             trans_sels = view.get_regions(REGION_KEY)
 
+        if not trans_sels:
+            # Abort if there are still no selections to navigate through.
+            return
+
         # Get the previous or next selection and mark
         if forward:
             index, sel = find_next_sel(trans_sels, current_sels[0])
