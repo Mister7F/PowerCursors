@@ -50,9 +50,8 @@ def find_prev_sel(trans_sels, current_sel):
 
 def find_next_sel(trans_sels, current_sel):
     """Find the region in `trans_sels` that is right after `current_sel`.
-    Assume  `trans_sels` is sorted.
+    Assume `trans_sels` is sorted.
     """
-    # for i, sel in enumerate(trans_sels):
     for i, sel in enumerate(trans_sels):
         if sel.begin() > current_sel.begin():
             return i, trans_sels[i]
