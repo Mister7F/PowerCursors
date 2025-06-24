@@ -3,7 +3,6 @@ import sublime
 import sublime_plugin
 
 PREFERENCE_KEY = "power_cursors_style"
-# DEFAULT_STYLE = {"scope": "region.redish", "icon": "dot", "flags": "outline"}
 DEFAULT_STYLE = {"scope": "transition_cursor", "icon": "dot", "flags": "fill"}
 STYLES = {
     "fill": sublime.DRAW_EMPTY | sublime.PERSISTENT,
