@@ -217,7 +217,9 @@ class power_cursor_exit(sublime_plugin.TextCommand):
     """Clear all transition cursors and exit the transition state."""
 
     def run(self, edit):
-        set_transition_sels(self.view, [])
+        view = self.view
+        set_transition_sels(view, [])
+        view.erase_regions("mark")
 
 
 class CursorTransitionListener(sublime_plugin.EventListener):
