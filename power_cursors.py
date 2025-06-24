@@ -2,7 +2,6 @@ from collections import ChainMap
 import sublime
 import sublime_plugin
 
-
 PREFERENCE_KEY = "power_cursors_style"
 # DEFAULT_STYLE = {"scope": "region.redish", "icon": "dot", "flags": "outline"}
 DEFAULT_STYLE = {"scope": "transition_cursor", "icon": "dot", "flags": "fill"}
@@ -157,7 +156,8 @@ class power_cursor_select(sublime_plugin.TextCommand):
             all(not s.empty() for s in trans_sels)
             and len(current_sels) == 1
             and current_sels[0].empty()
-        ): ...
+        ):
+            ...
         else:
             trans_sels.extend(current_sels)
             # Lazy step: Store the disorganized region and retrieve a sorted and
