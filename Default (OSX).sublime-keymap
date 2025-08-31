@@ -10,6 +10,6 @@
     // { "keys": ["ctrl+["], "command": "power_cursor_select", "args": { "forward": false } },
     // { "keys": ["ctrl+]"], "command": "power_cursor_select", "args": { "forward": true } },
     // { "keys": ["escape"], "command": "power_cursor_exit",
-    //   "context": [ { "key": "in_cursor_transition" } ]
+    //   "context": [ { "key": "in_cursor_transition" }, {"key": "num_selections", "operand": 1, "operator": "equal"} ]
     // },
 ]
