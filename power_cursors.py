@@ -39,7 +39,7 @@ def find_prev_sel(trans_sels, current_sel):
     Assume `trans_sels` is sorted.
     """
     return next(
-        (sel for sel in reversed(trans_sels) if sel.end() < current_sel.end()),
+        (sel for sel in reversed(trans_sels) if sel.end() <= current_sel.end()),
         # Rotate to the last if `current_sel` is before all other selections
         trans_sels[-1],
     )
@@ -50,7 +50,7 @@ def find_next_sel(trans_sels, current_sel):
     Assume `trans_sels` is sorted.
     """
     return next(
-        (sel for sel in trans_sels if sel.begin() > current_sel.begin()),
+        (sel for sel in trans_sels if sel.begin() >= current_sel.begin()),
         # Rotate to the beginning if `current_sel` is after all other selections
         trans_sels[0],
     )
