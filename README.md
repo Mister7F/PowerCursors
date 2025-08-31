@@ -84,6 +84,8 @@ There are 6 commands in **PowerCursors**:
 
     The command is `power_cursor_select`, with an argument "forward" being either `true` or `false`.
 
+    With the "extend" argument, you can keep the current selection.
+
 * ### Activate all cursors
 
     It activates all cursors. Now when you move or edit, all cursors will respond, just like how the native multiple-cursor works in Sublime Text.

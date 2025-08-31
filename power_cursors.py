@@ -38,24 +38,22 @@ def find_prev_sel(trans_sels, current_sel):
     """Find the region in `trans_sels` that is right before `current_sel`.
     Assume `trans_sels` is sorted.
     """
-    for i in range(len(trans_sels) - 1, -1, -1):
-        if trans_sels[i].end() < current_sel.end():
-            return i, trans_sels[i]
-
-    # Rotate to the last if `current_sel` is before all other selections
-    return -1, trans_sels[-1]
+    return next(
+        (sel for sel in reversed(trans_sels) if sel.end() < current_sel.end()),
+        # Rotate to the last if `current_sel` is before all other selections
+        trans_sels[-1],
+    )
 
 
 def find_next_sel(trans_sels, current_sel):
     """Find the region in `trans_sels` that is right after `current_sel`.
     Assume `trans_sels` is sorted.
     """
-    for i, sel in enumerate(trans_sels):
-        if sel.begin() > current_sel.begin():
-            return i, trans_sels[i]
-
-    # Rotate to the beginning if `current_sel` is after all other selections
-    return 0, trans_sels[0]
+    return next(
+        (sel for sel in trans_sels if sel.begin() > current_sel.begin()),
+        # Rotate to the beginning if `current_sel` is after all other selections
+        trans_sels[0],
+    )
 
 
 #### Commands ####
@@ -144,10 +142,10 @@ class power_cursor_remove(sublime_plugin.TextCommand):
 class power_cursor_select(sublime_plugin.TextCommand):
     """Switch back and forth between transition cursors."""
 
-    def run(self, edit, forward=False):
+    def run(self, edit, forward=False, extend=False):
         view = self.view
 
-        current_sels = [s for s in view.sel()]
+        current_sels = list(view.sel())
         trans_sels = view.get_regions(REGION_KEY)
         # Add the current selections into the transition lists but not if you
         # have a single cursor right now *and* only selections in the list.
@@ -161,21 +159,25 @@ class power_cursor_select(sublime_plugin.TextCommand):
             trans_sels.extend(current_sels)
             # Lazy step: Store the disorganized region and retrieve a sorted and
             # merged region list
-            view.add_regions(REGION_KEY, trans_sels)
+            view.add_regions(REGION_KEY + "_TMP", trans_sels)
             trans_sels = view.get_regions(REGION_KEY)
+            view.erase_regions(REGION_KEY + "_TMP")
 
-        if not trans_sels:
+        unselected_trans_sels = [t for t in trans_sels if t not in current_sels]
+
+        if not unselected_trans_sels:
             # Abort if there are still no selections to navigate through.
             return
 
         # Get the previous or next selection and mark
         if forward:
-            index, sel = find_next_sel(trans_sels, current_sels[0])
+            sel = find_next_sel(unselected_trans_sels, current_sels[0])
         else:
-            index, sel = find_prev_sel(trans_sels, current_sels[-1])
+            sel = find_prev_sel(unselected_trans_sels, current_sels[-1])
 
         # Activate the selection
-        view.sel().clear()
+        if not extend:
+            view.sel().clear()
         view.sel().add(sel)
         view.show(sel)
         if sel.a != sel.b:
@@ -187,8 +189,6 @@ class power_cursor_select(sublime_plugin.TextCommand):
                 sublime.HIDDEN | sublime.PERSISTENT,
             )
 
-        # Remove it from transition list
-        del trans_sels[index]
         set_transition_sels(view, trans_sels)
 
 
