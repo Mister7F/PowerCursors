@@ -139,6 +139,23 @@ class power_cursor_remove(sublime_plugin.TextCommand):
         set_transition_sels(view, trans_sels)
 
 
+class power_cursor_toggle(sublime_plugin.TextCommand):
+    """Toggle the transition cursor under the selection, and keep the selection."""
+
+    def run(self, edit) -> None:
+        view = self.view
+
+        trans_sels = view.get_regions(REGION_KEY)
+        for sel in self.view.sel():
+            selected = [t for t in trans_sels if t in sel]
+            if selected:
+                trans_sels = [t for t in trans_sels if t not in selected]
+            else:
+                trans_sels.append(sel)
+
+        set_transition_sels(view, trans_sels)
+
+
 class power_cursor_select(sublime_plugin.TextCommand):
     """Switch back and forth between transition cursors."""
 

@@ -92,6 +92,14 @@ There are 6 commands in **PowerCursors**:
 
     The command is `power_cursor_activate`.
 
+* ### Toggle the current cursor
+
+    For each selection, if it contains a transition cursor, it will remove it.
+
+    If it contains none, then the current selection will be added.
+
+    The command is `power_cursor_toggle`.
+
 * ### Exit
 
     It exits the cursor transition status. All cursors you added will be removed and the normal cursor mode is resumed.
